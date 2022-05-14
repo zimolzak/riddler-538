@@ -54,8 +54,8 @@ def game_won(num_dice, num_faces):
     :param num_faces:
     :return:
     """
-    transitions = np.zeros((6, 5))  # 10 11 12 14 20 21 22 24
-    old_score = 5
+    transitions = np.zeros((6, 5))  # 10 11 12 14 20 21 22 24 fixme generalize numeric
+    old_score = 5  # fixme generalize numeric
     # Use row 5 to tally initialization weights. Others are ordinary meaning.
     r = roll(num_dice, num_faces)
     n_rolls = 1
@@ -80,7 +80,7 @@ def game_won(num_dice, num_faces):
             n_rolls += 1
 
 
-def demonstrate_one_game():  # takes no params
+def demonstrate_one_game():  # takes no params. fixme: unused
     res, n, hist, _ = game_won(4, 4)  # just uses sensible defaults down here
     print(res, n)
     print()
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     print("max dur win vs loss:", np.max(dur_win), np.max(dur_loss))
     print()
 
-    # build up tensor by tiling
+    # build up tensor by tiling. fixme so far never used
     dw = np.multiply(durations, win_loss)
     dl = np.multiply(durations, 1 - win_loss)
     tensor = np.stack((
@@ -162,7 +162,7 @@ if __name__ == '__main__':
     # Search in space of all possible 4-dice rolls.
     # Count how many unique dice.
     # Equivalent to finding probability of (2 pair + 4 of kind), 3 of kind, pair, straight.
-    score_4 = [0, 0, 0, 0, 0]
+    score_4 = [0, 0, 0, 0, 0]  # fixme generalize
     for four_dice_tup in product(range(1, nfa + 1), repeat=ndi):
         uniq, dupe = parse_dice(list(four_dice_tup))
         score = len(uniq)
@@ -170,7 +170,7 @@ if __name__ == '__main__':
     print("Closed-form transition vector for init or 3 dups, 1 unique")
     print("(same as row 1 or 5 of Transition matrix):")
     print(score_4, "/ 256 =")
-    cf = [x / 256 for x in score_4]
+    cf = [x / 256 for x in score_4]  # fixme generalize
     print(cf)
     print()
 
@@ -192,6 +192,7 @@ if __name__ == '__main__':
 
     r = 2
     t = ndi + 1 - r
+    # fixme generalize Q and R, using cf[] more.
     Q = np.array([
         [cf[1], cf[2], cf[3]],  # transition from 1 to something, denom 256
         [1/8, 5/8, 0],  # from 2 to something
@@ -202,7 +203,7 @@ if __name__ == '__main__':
         [1/8, 1/8],
         [0, 1]
     ])
-    P = np.vstack((
+    P = np.vstack((  # fixme unused
         np.hstack((Q, R)),
         np.hstack((np.zeros((r, t)), np.identity(r)))
     ))
@@ -220,7 +221,7 @@ if __name__ == '__main__':
     print(N)
     print()
 
-    # Expected steps starting at transient i
+    # Expected steps starting at transient i. fixme unused
     print("vector t = N * ones = ")
     t_bold = np.matmul(N, np.ones((t, 1)))
     print(t_bold)
