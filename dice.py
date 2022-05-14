@@ -3,19 +3,6 @@ import numpy as np
 from tqdm import tqdm
 from itertools import product
 
-ADJACENCY = np.array([
-    # Edges in directed graph of "score" over time.
-    # Score ranges from 0 to 4 (number of dice in the "unique" group).
-    # Only 8 can happen in a real game.
-    # Each would have a weight.
-    # Making {0,1} matrix of the 8 allowed edges in case we need it later.
-    [0, 0, 0, 0, 0],
-    [1, 1, 1, 0, 1],
-    [1, 1, 1, 0, 1],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0]
-])
-
 
 def roll(num_dice, num_faces):
     result = []
@@ -80,14 +67,6 @@ def game_won(num_dice, num_faces):
             n_rolls += 1
 
 
-def demonstrate_one_game():  # takes no params. fixme: unused
-    res, n, hist, _ = game_won(4, 4)  # just uses sensible defaults down here
-    print(res, n)
-    print()
-    for row in hist:
-        print(row[0], row[1])
-
-
 def simulate_many(n_sims, num_dice, num_faces):
     # first game ({0,1} win, duration, history, transitions)
     w, n, _, transitions = game_won(num_dice, num_faces)
@@ -130,28 +109,6 @@ if __name__ == '__main__':
     print(" ", n_sims_setting - n_wins, np.shape(dur_loss))
     print("max dur win vs loss:", np.max(dur_win), np.max(dur_loss))
     print()
-
-    # build up tensor by tiling. fixme so far never used
-    dw = np.multiply(durations, win_loss)
-    dl = np.multiply(durations, 1 - win_loss)
-    tensor = np.stack((
-        np.broadcast_to(dw, (np.max(durations), n_sims_setting)),
-        np.broadcast_to(dl, (np.max(durations), n_sims_setting))
-    ))
-    print("Shape of intermediate tensor for 'extra credit,' or eventually")
-    print("doing histogram of duration stratified by win/loss:")
-    print(tensor.shape)
-    print("Expect (2, max dur, n sims)")
-
-    tr_rowsum = tr.sum(axis=1).reshape((tr.shape[0], 1))
-    tr_allsum = np.broadcast_to(tr_rowsum, tr.shape)
-    tr_normalized = tr / tr_allsum
-    print()
-
-    print("Transition matrix (MC estimate, extra row for init):")
-    # print(tr, "\n")
-    # print(tr_allsum, "\n")
-    print(tr_normalized, "\n")
 
 
 
@@ -203,12 +160,6 @@ if __name__ == '__main__':
         [1/8, 1/8],
         [0, 1]
     ])
-    P = np.vstack((  # fixme unused
-        np.hstack((Q, R)),
-        np.hstack((np.zeros((r, t)), np.identity(r)))
-    ))
-    print("P = determined from closed form dice probabilities =")
-    print(P)
     print("Q = transient to transient =")
     print(Q)
     print("R = transient to absorbing =")
@@ -219,12 +170,6 @@ if __name__ == '__main__':
     N = np.linalg.inv(np.identity(t) - Q)
     print("N = (I - Q)^-1 = ")
     print(N)
-    print()
-
-    # Expected steps starting at transient i. fixme unused
-    print("vector t = N * ones = ")
-    t_bold = np.matmul(N, np.ones((t, 1)))
-    print(t_bold)
     print()
 
     # Absorbing probabilities (start in trans state i, land in abs state j)
