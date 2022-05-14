@@ -34,16 +34,11 @@ def parse_dice(dice: list) -> tuple:
     return uniqs, dups
 
 
-def game_won(num_dice, num_faces):
+def game_won(num_dice, num_faces, do_transitions=False, do_history=False):
     """note that "history" in return tuple is whole history of all dice values.
-
-    :param num_dice:
-    :param num_faces:
-    :return:
     """
-    transitions = np.zeros((6, 5))  # 10 11 12 14 20 21 22 24 fixme generalize numeric
-    old_score = 5  # fixme generalize numeric
-    # Use row 5 to tally initialization weights. Others are ordinary meaning.
+    transitions = np.zeros((5, 5))  # fixme generalize numeric
+    old_score = 1
     r = roll(num_dice, num_faces)
     n_rolls = 1
     history = []
@@ -51,15 +46,18 @@ def game_won(num_dice, num_faces):
         u, d = parse_dice(r)
 
         score = len(u)
-        history.append([u, d])
-        transitions[old_score, score] += 1
-
+        if do_history:
+            history.append([u, d])
+        if do_transitions:
+            transitions[old_score, score] += 1
         if score == 4:  # win
-            transitions[3, 4] += 1
-            transitions[4, 4] += 1
+            if do_transitions:
+                transitions[3, 4] += 1  # fixme generalize numeric
+                transitions[4, 4] += 1  # fixme generalize numeric
             return True, n_rolls, history, transitions
         elif score == 0:  # loss
-            transitions[0, 0] += 1
+            if do_transitions:
+                transitions[0, 0] += 1
             return False, n_rolls, history, transitions
         else:
             old_score = score
@@ -67,13 +65,13 @@ def game_won(num_dice, num_faces):
             n_rolls += 1
 
 
-def simulate_many(n_sims, num_dice, num_faces):
+def simulate_many(n_sims, num_dice, num_faces, do_transitions=False):
     # first game ({0,1} win, duration, history, transitions)
     w, n, _, transitions = game_won(num_dice, num_faces)
     games_matrix = np.array([[w, n]])
 
     for i in tqdm(range(n_sims - 1)):
-        w, n, _, ti = game_won(num_dice, num_faces)
+        w, n, _, ti = game_won(num_dice, num_faces, do_transitions=do_transitions)
         games_matrix = np.vstack((
             games_matrix,
             [[w, n]]
@@ -89,7 +87,7 @@ if __name__ == '__main__':
     nfa = 4
 
     n_sims_setting = 20000
-    m, tr = simulate_many(n_sims_setting, num_dice=ndi, num_faces=nfa)
+    m, tr = simulate_many(n_sims_setting, num_dice=ndi, num_faces=nfa, do_transitions=True)
 
     win_loss = m[:, 0]
     durations = m[:, 1]
@@ -108,10 +106,13 @@ if __name__ == '__main__':
     print(" ", np.sum(win_loss), np.shape(dur_win))
     print(" ", n_sims_setting - n_wins, np.shape(dur_loss))
     print("max dur win vs loss:", np.max(dur_win), np.max(dur_loss))
+    print("tr =\n", tr)
     print()
 
 
 
+
+    print("\n\n\n# Absorbing Markov chain calculations\n")
 
     """We have a Markov chain. tr_normalized is a right stochastic matrix. S is state space {0,1,2,3,4}
     with cardinality alpha = 5. Absorbing states are 0 and 4."""
@@ -144,8 +145,6 @@ if __name__ == '__main__':
     0 0 0 1 0
     0 0 0 0 1
     """
-
-    print("\n\n\n# Absorbing Markov chain calculations\n")
 
     r = 2
     t = ndi + 1 - r
