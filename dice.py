@@ -135,7 +135,6 @@ if __name__ == '__main__':
     print(t.shape)
     print("Expect (2, max dur, n sims)")
 
-    # tr_dense = tr[(1, 2, 5), :]  # fixme adhoc selection of interesting rows
     tr_rowsum = tr.sum(axis=1).reshape((tr.shape[0], 1))
     tr_allsum = np.broadcast_to(tr_rowsum, tr.shape)
     tr_normalized = tr / tr_allsum
