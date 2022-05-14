@@ -39,11 +39,11 @@ def game_won(num_dice, num_faces, do_transitions=False, do_history=False):
     """
     transitions = np.zeros((5, 5))  # fixme generalize numeric
     old_score = 1
-    r = roll(num_dice, num_faces)
+    my_roll = roll(num_dice, num_faces)
     n_rolls = 1
     history = []
     while True:
-        u, d = parse_dice(r)
+        u, d = parse_dice(my_roll)
 
         score = len(u)
         if do_history:
@@ -61,7 +61,7 @@ def game_won(num_dice, num_faces, do_transitions=False, do_history=False):
             return False, n_rolls, history, transitions
         else:
             old_score = score
-            r = reroll(u, d, num_faces)
+            my_roll = reroll(u, d, num_faces)
             n_rolls += 1
 
 
@@ -70,7 +70,7 @@ def simulate_many(n_sims, num_dice, num_faces, do_transitions=False):
     w, n, _, transitions = game_won(num_dice, num_faces)
     games_matrix = np.array([[w, n]])
 
-    for i in tqdm(range(n_sims - 1)):
+    for _ in tqdm(range(n_sims - 1)):
         w, n, _, ti = game_won(num_dice, num_faces, do_transitions=do_transitions)
         games_matrix = np.vstack((
             games_matrix,
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     ndi = 4
     nfa = 4
 
-    n_sims_setting = 20000
+    n_sims_setting = 50000
     m, tr = simulate_many(n_sims_setting, num_dice=ndi, num_faces=nfa, do_transitions=True)
 
     win_loss = m[:, 0]
@@ -123,8 +123,8 @@ if __name__ == '__main__':
     score_4 = [0, 0, 0, 0, 0]  # fixme generalize
     for four_dice_tup in product(range(1, nfa + 1), repeat=ndi):
         uniq, dupe = parse_dice(list(four_dice_tup))
-        score = len(uniq)
-        score_4[score] += 1
+        sc = len(uniq)
+        score_4[sc] += 1
     print("Closed-form transition vector for init or 3 dups, 1 unique")
     print("(same as row 1 or 5 of Transition matrix):")
     print(score_4, "/ 256 =")
