@@ -5,35 +5,25 @@ from sim_helpers import simulate_many, parse_dice
 
 if __name__ == '__main__':
 
-    # global settings, might need in multiple places if generalize
+    # Global settings, might need in multiple places if generalize
     ndi = 4
     nfa = 4
-
     n_sims_setting = 50000
+
+    # Numeric
+
     m, tr = simulate_many(n_sims_setting, num_dice=ndi, num_faces=nfa, do_transitions=True)
-
     win_loss = m[:, 0]
-    durations = m[:, 1]
     n_wins = np.sum(win_loss)
-    dur_win = durations[win_loss == 1]
-    dur_loss = durations[win_loss == 0]
     p_numeric = np.mean(win_loss)
-
     print()
     print("P =", p_numeric)  # P = 0.45132 at 200 k
     print()
-
     print("N trials =", n_sims_setting)
-    print("max game dur overall:", np.max(durations))
-    print("length checks (wins and losses):")
-    print(" ", np.sum(win_loss), np.shape(dur_win))
-    print(" ", n_sims_setting - n_wins, np.shape(dur_loss))
-    print("max dur win vs loss:", np.max(dur_win), np.max(dur_loss))
     print("tr =\n", tr)
     print()
 
-
-
+    # Markov
 
     print("\n\n\n# Absorbing Markov chain calculations\n")
 
@@ -41,9 +31,9 @@ if __name__ == '__main__':
     with cardinality alpha = 5. Absorbing states are 0 and 4."""
 
     # Search in space of all possible 4-dice rolls.
-    # Count how many unique dice.
+    # Count how many unique dice in each element of the space.
     # Equivalent to finding probability of (2 pair + 4 of kind), 3 of kind, pair, straight.
-    score_4 = [0, 0, 0, 0, 0]  # fixme generalize
+    score_4 = [0, 0, 0, 0, 0]  # fixme generalize: f(ndi only). Make it its own function.
     for four_dice_tup in product(range(1, nfa + 1), repeat=ndi):
         uniq, dupe = parse_dice(list(four_dice_tup))
         sc = len(uniq)
@@ -51,7 +41,7 @@ if __name__ == '__main__':
     print("Closed-form transition vector for init or 3 dups, 1 unique")
     print("(same as row 1 or 5 of Transition matrix):")
     print(score_4, "/ 256 =")
-    cf = [x / 256 for x in score_4]  # fixme generalize
+    cf = [x / 256 for x in score_4]  # fixme generalize. nfa ** ndi.
     print(cf)
     print()
 
@@ -60,18 +50,11 @@ if __name__ == '__main__':
     r = 2 absorbing states {0, 4}
     Q is 3x3
     R is 3x2
-    
-    Canonical form transition matrix P =
-    q q q r r
-    q q q r r
-    q q q r r
-    0 0 0 1 0
-    0 0 0 0 1
     """
 
     r = 2
     t = ndi + 1 - r
-    # fixme generalize Q and R, using cf[] more.
+    # fixme generalize Q and R, using cf[] more. f(ndi only).
     Q = np.array([
         [cf[1], cf[2], cf[3]],  # transition from 1 to something, denom 256
         [1/8, 5/8, 0],  # from 2 to something
@@ -94,11 +77,7 @@ if __name__ == '__main__':
     print(N)
     print()
 
-    # Absorbing probabilities (start in trans state i, land in abs state j)
-    # Remember, the whole game starts basically in trans state 1 (same as 1 unique, 3 dup)
-    # So Pr(win) = B_11 = 0.45, agreeing fine with numeric monte carlo estimate.
-    # Pr(loss) = B_10 = 0.55.
-    # Here, Python would call it B[0, 1] but I am calling it B_11
+    # Pr(win) = B[0, 1] = 0.45, agreeing fine with numeric monte carlo estimate.
     B = np.matmul(N, R)
     print("B = N * R =")
     print(B)

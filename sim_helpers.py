@@ -36,7 +36,7 @@ def parse_dice(dice: list) -> tuple:
 def game_won(num_dice, num_faces, do_transitions=False, do_history=False):
     """note that "history" in return tuple is whole history of all dice values.
     """
-    transitions = np.zeros((5, 5))  # fixme generalize numeric
+    transitions = np.zeros((num_dice + 1, num_dice + 1))
     old_score = 1
     my_roll = roll(num_dice, num_faces)
     n_rolls = 1
@@ -51,12 +51,12 @@ def game_won(num_dice, num_faces, do_transitions=False, do_history=False):
             transitions[old_score, score] += 1
         if score == 4:  # win
             if do_transitions:
-                transitions[3, 4] += 1  # fixme generalize numeric
-                transitions[4, 4] += 1  # fixme generalize numeric
+                transitions[num_dice - 1, num_dice] += 1  # The "never" transition like 3 -> 4 if tetrahedral
+                transitions[num_dice, num_dice] += 1  # Win is an absorbing state.
             return True, n_rolls, history, transitions
         elif score == 0:  # loss
             if do_transitions:
-                transitions[0, 0] += 1
+                transitions[0, 0] += 1  # Win is an absorbing state.
             return False, n_rolls, history, transitions
         else:
             old_score = score
