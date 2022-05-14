@@ -1,6 +1,7 @@
 from random import randint
 from tqdm import tqdm
 import numpy as np
+from itertools import product
 
 
 def roll(num_dice, num_faces):
@@ -77,3 +78,21 @@ def simulate_many(n_sims, num_dice, num_faces, do_transitions=False):
         ))
         transitions += ti
     return games_matrix, transitions
+
+
+def search_space(ndi, nfa, ndi_total):
+    """Search in space of all possible 4-dice rolls.
+    (But not necessarily 4)
+    Count how many unique dice in each element of the space.
+    Equivalent to finding probability of (2 pair + 4 of kind), 3 of kind, pair, straight.
+    """
+    score_vec = np.zeros(ndi_total + 1)
+    for few_dice_tup in product(range(1, nfa + 1), repeat=ndi):
+        n_arb = ndi_total - ndi
+        arbitrary_dice = list(range(1, n_arb + 1))  # The ones in "unique" group. Numbers don't matter.
+        all_dice = list(few_dice_tup) + arbitrary_dice
+        assert len(all_dice) == ndi_total
+        uniq, dupe = parse_dice(all_dice)
+        sc = len(uniq)
+        score_vec[sc] += 1
+    return score_vec, score_vec / (nfa ** ndi)
