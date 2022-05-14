@@ -47,23 +47,38 @@ def parse_dice(dice: list) -> tuple:
 
 
 def game_won(num_dice, num_faces):
+    """note that "history" in return tuple is whole history of all dice values.
+
+    :param num_dice:
+    :param num_faces:
+    :return:
+    """
+    transitions = np.zeros((6, 5))  # 10 11 12 14 20 21 22 24
+    old_score = 5
+    # Use row 5 to tally initialization weights. Others are ordinary meaning.
     r = roll(num_dice, num_faces)
     n_rolls = 1
     history = []
     while True:
         u, d = parse_dice(r)
+
+        score = len(u)
         history.append([u, d])
-        if len(d) == 0:
-            return True, n_rolls, history
-        elif len(u) == 0:
-            return False, n_rolls, history
+        transitions[old_score, score] += 1
+        # print("os ns ", old_score, score, len(d))  # fixme
+
+        if score == 4:  # win
+            return True, n_rolls, history, transitions
+        elif score == 0:  # loss
+            return False, n_rolls, history, transitions
         else:
+            old_score = score
             r = reroll(u, d, num_faces)
             n_rolls += 1
 
 
 def demonstrate_one_game():  # takes no params
-    res, n, hist = game_won(4, 4)  # just uses sensible defaults down here
+    res, n, hist, _ = game_won(4, 4)  # just uses sensible defaults down here
     print(res, n)
     print()
     for row in hist:
@@ -71,28 +86,29 @@ def demonstrate_one_game():  # takes no params
 
 
 def simulate_many(n_sims, num_dice, num_faces):
-    w, n, _ = game_won(num_dice, num_faces)
-
+    # first game ({0,1} win, duration, history, transitions)
+    w, n, _, transitions = game_won(num_dice, num_faces)
     games_matrix = np.array([[w, n]])
+
     for i in tqdm(range(n_sims - 1)):
-        w, n, _ = game_won(num_dice, num_faces)
+        w, n, _, ti = game_won(num_dice, num_faces)
         games_matrix = np.vstack((
             games_matrix,
             [[w, n]]
         ))
-    return games_matrix
+        transitions += ti
+    return games_matrix, transitions
 
 
 if __name__ == '__main__':
     n_sims_setting = 20000
-    m = simulate_many(n_sims_setting, 4, 4)
+    m, tr = simulate_many(n_sims_setting, 4, 4)
 
     win_loss = m[:, 0]
     durations = m[:, 1]
     n_wins = np.sum(win_loss)
     dur_win = durations[win_loss == 1]
     dur_loss = durations[win_loss == 0]
-    transitions = np.zeros(8)  # 10 11 12 14 20 21 22 24
 
     print()
     print("P =", np.mean(win_loss))  # P = 0.45132 at 200 k
@@ -116,3 +132,7 @@ if __name__ == '__main__':
     print("doing histogram of duration stratified by win/loss:")
     print(t.shape)
     print("Expect (2, max dur, n sims)")
+
+    print()
+    print("Transitions:")
+    print(tr)
