@@ -1,0 +1,35 @@
+We only need the probabilities of going from 2 unique dice to 0 (loss), 1, 2, 4 (win); and going from 1 to 0, 1, 2, 4. All are rational numbers with denominator 4^2 and 4^4, respectively.
+
+Using the notation of "Absorbing Markov chain" Wikipedia page, construct matrices Q and R from the probabilities above. Q = {{48/256, 144/256, 0}, {2/16, 10/16, 0}, {0,0,0}}. R = {{40/256, 24/256}, {2/16, 2/16}, {0, 1}}.
+
+Then calculate matrix N (from Q), and finally B (which is N * R). B row 1 column 2 is the answer. Row 1 is for transient state 1 (initial state), and column 2 is for absorbing state 2 (win).
+
+Took me 1 day, 100 lines numpy for Markov calculations, 150 lines for numerical simulation :)
+
+
+
+
+B = N * R =
+(I - Q)^-1 * R
+
+Q (t to t) =
+{{48/256, 144/256, 0}, {2/16, 10/16, 0}, {0,0,0}}
+=
+{{3/16, 9/16, 0}, {1/8, 5/8, 0}, {0, 0, 0}}
+
+R (t to a) =
+{{40/256, 24/256}, {2/16, 2/16}, {0, 1}}
+
+I =
+{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}
+
+N =
+{{8/5, 12/5, 0}, {8/15, 52/15, 0}, {0, 0, 1}}
+
+most specific closed form:
+top row of matrix N, dot product with rightmost column matrix R
+{8/5, 12/5, 0} . {24/256, 1/8, 1} = 
+3/20 + 3/10 = 
+9/20
+
+8/5 * Pr(1 to 4) + 1/25 * Pr(2 to 1)

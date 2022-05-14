@@ -109,7 +109,7 @@ if __name__ == '__main__':
     ndi = 4
     nfa = 4
 
-    n_sims_setting = 200000
+    n_sims_setting = 20000
     m, tr = simulate_many(n_sims_setting, num_dice=ndi, num_faces=nfa)
 
     win_loss = m[:, 0]
@@ -153,6 +153,9 @@ if __name__ == '__main__':
     # print(tr_allsum, "\n")
     print(tr_normalized, "\n")
 
+
+
+
     """We have a Markov chain. tr_normalized is a right stochastic matrix. S is state space {0,1,2,3,4}
     with cardinality alpha = 5. Absorbing states are 0 and 4."""
 
@@ -170,9 +173,6 @@ if __name__ == '__main__':
     cf = [x / 256 for x in score_4]
     print(cf)
     print()
-
-
-
 
     """Absorbing Markov chain:
     t = 3 transient states {1, 2, 3}
@@ -208,6 +208,10 @@ if __name__ == '__main__':
     ))
     print("P = determined from closed form dice probabilities =")
     print(P)
+    print("Q = transient to transient =")
+    print(Q)
+    print("R = transient to absorbing =")
+    print(R)
     print()
 
     # fundamental matrix
