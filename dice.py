@@ -20,7 +20,9 @@ if __name__ == '__main__':
     print("P =", p_numeric)  # P = 0.45132 at 200 k
     print()
     print("N trials =", n_sims_setting)
-    print("tr =\n", tr)
+    print("tr =")
+    for row in tr:
+        print(row / np.sum(row))
     print()
 
     # Markov
@@ -33,15 +35,15 @@ if __name__ == '__main__':
     # Search in space of all possible 4-dice rolls.
     # Count how many unique dice in each element of the space.
     # Equivalent to finding probability of (2 pair + 4 of kind), 3 of kind, pair, straight.
-    score_4 = [0, 0, 0, 0, 0]  # fixme generalize: f(ndi only). Make it its own function.
+    score_4 = np.zeros(ndi + 1)
     for four_dice_tup in product(range(1, nfa + 1), repeat=ndi):
         uniq, dupe = parse_dice(list(four_dice_tup))
         sc = len(uniq)
         score_4[sc] += 1
     print("Closed-form transition vector for init or 3 dups, 1 unique")
-    print("(same as row 1 or 5 of Transition matrix):")
+    print("(same as row 1 of Transition matrix):")
     print(score_4, "/", nfa ** ndi, "=")
-    cf = [x / (nfa ** ndi) for x in score_4]
+    cf = score_4 / (nfa ** ndi)
     print(cf)
     print()
 
