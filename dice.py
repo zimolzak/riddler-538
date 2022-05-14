@@ -71,7 +71,7 @@ def simulate_many(n_sims, num_dice, num_faces):
 
 
 if __name__ == '__main__':
-    n_sims = 50000
+    n_sims = 11
     m = simulate_many(n_sims, 4, 4)
     win_loss = m[:, 0]
     durations = m[:, 1]
@@ -86,3 +86,18 @@ if __name__ == '__main__':
     print(np.sum(win_loss), np.shape(dur_win))
     print(n_sims - n_wins, np.shape(dur_loss))
     print("max dur win vs loss:", np.max(dur_win), np.max(dur_loss))
+
+    # masked
+    dmw = np.ma.array(durations, mask=win_loss)
+    dml = np.ma.array(durations, mask=(1 - win_loss))
+
+    print(dmw)
+    dmw = np.broadcast_to(dmw, (np.max(durations), n_sims))
+    print(dmw)
+
+    # build up tensor by tiling
+
+    # t = np.ma.stack(
+    #     np.broadcast_to(),
+    #     np.broadcast_to()
+    # )
