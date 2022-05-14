@@ -1,6 +1,7 @@
 from random import randint
 import numpy as np
 from tqdm import tqdm
+from itertools import product
 
 ADJACENCY = np.array([
     # Edges in directed graph of "score" over time.
@@ -103,8 +104,13 @@ def simulate_many(n_sims, num_dice, num_faces):
 
 
 if __name__ == '__main__':
+
+    # global settings, might need in multiple places if generalize
+    ndi = 4
+    nfa = 4
+
     n_sims_setting = 20000
-    m, tr = simulate_many(n_sims_setting, 4, 4)
+    m, tr = simulate_many(n_sims_setting, num_dice=ndi, num_faces=nfa)
 
     win_loss = m[:, 0]
     durations = m[:, 1]
@@ -116,7 +122,8 @@ if __name__ == '__main__':
     print("P =", np.mean(win_loss))  # P = 0.45132 at 200 k
     print()
 
-    print("max dur global:", np.max(durations))
+    print("N trials =", n_sims_setting)
+    print("max game dur overall:", np.max(durations))
     print("length checks (wins and losses):")
     print(" ", np.sum(win_loss), np.shape(dur_win))
     print(" ", n_sims_setting - n_wins, np.shape(dur_loss))
@@ -130,7 +137,7 @@ if __name__ == '__main__':
         np.broadcast_to(dw, (np.max(durations), n_sims_setting)),
         np.broadcast_to(dl, (np.max(durations), n_sims_setting))
     ))
-    print("Shape of intermediate tensor for eventually")
+    print("Shape of intermediate tensor for 'extra credit,' or eventually")
     print("doing histogram of duration stratified by win/loss:")
     print(t.shape)
     print("Expect (2, max dur, n sims)")
@@ -139,10 +146,38 @@ if __name__ == '__main__':
     tr_allsum = np.broadcast_to(tr_rowsum, tr.shape)
     tr_normalized = tr / tr_allsum
     print()
-    print("Transitions:")
-    print(tr, "\n")
-    print(tr_allsum, "\n")
+
+    print("Transition matrix:")
+    # print(tr, "\n")
+    # print(tr_allsum, "\n")
     print(tr_normalized, "\n")
 
-"""Markov chain. tr_normalized is a right stochastic matrix. S is state space {0,1,2,3,4}
-with cardinality alpha = 5. Absorbing states are 0 and 4."""
+    """We have a Markov chain. tr_normalized is a right stochastic matrix. S is state space {0,1,2,3,4}
+    with cardinality alpha = 5. Absorbing states are 0 and 4."""
+
+    # Search in space of all possible 4-dice rolls.
+    # Count how many unique dice.
+    # Equivalent to finding probability of (2 pair + 4 of kind), 3 of kind, pair, straight.
+    score_4 = [0, 0, 0, 0, 0]
+    for four_dice_tup in product(range(1, nfa + 1), repeat=ndi):
+        uniq, dupe = parse_dice(list(four_dice_tup))
+        score = len(uniq)
+        score_4[score] += 1
+    print("Closed-form transition vector for init or 3 dups")
+    print("(same as row 1 or 5 of Transition matrix):")
+    print(score_4, "/ 256 =")
+    print([x / 256 for x in score_4])
+
+    """Absorbing Markov chain:
+    t = 3 transient states
+    r = 2 absorbing states
+    Q is 3x3
+    R is 3x2
+    
+    Canonical form transition matrix P =
+    q q q r r
+    q q q r r
+    q q q r r
+    0 0 0 1 0
+    0 0 0 0 1
+    """
