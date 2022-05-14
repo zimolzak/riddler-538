@@ -2,6 +2,19 @@ from random import randint
 import numpy as np
 from tqdm import tqdm
 
+ADJACENCY = np.array([
+    # Edges in directed graph of "score" over time.
+    # Score ranges from 0 to 4 (number of dice in the "unique" group).
+    # Only 8 can happen in a real game.
+    # Each would have a weight.
+    # Making {0,1} matrix of the 8 allowed edges in case we need it later.
+    [0, 0, 0, 0, 0],
+    [1, 1, 1, 0, 1],
+    [1, 1, 1, 0, 1],
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0]
+])
+
 
 def roll(num_dice, num_faces):
     result = []
@@ -39,7 +52,7 @@ def game_won(num_dice, num_faces):
     history = []
     while True:
         u, d = parse_dice(r)
-        history.append([u,d])
+        history.append([u, d])
         if len(d) == 0:
             return True, n_rolls, history
         elif len(u) == 0:
@@ -71,33 +84,35 @@ def simulate_many(n_sims, num_dice, num_faces):
 
 
 if __name__ == '__main__':
-    n_sims = 11
-    m = simulate_many(n_sims, 4, 4)
+    n_sims_setting = 20000
+    m = simulate_many(n_sims_setting, 4, 4)
+
     win_loss = m[:, 0]
     durations = m[:, 1]
     n_wins = np.sum(win_loss)
     dur_win = durations[win_loss == 1]
     dur_loss = durations[win_loss == 0]
+    transitions = np.zeros(8)  # 10 11 12 14 20 21 22 24
 
-    print("P =", np.mean(win_loss))
-    # P = 0.45121 but fluctuates even at 100k
-    print("max dur", np.max(durations))
-    print("length checks")
-    print(np.sum(win_loss), np.shape(dur_win))
-    print(n_sims - n_wins, np.shape(dur_loss))
+    print()
+    print("P =", np.mean(win_loss))  # P = 0.45132 at 200 k
+    print()
+
+    print("max dur global:", np.max(durations))
+    print("length checks (wins and losses):")
+    print(" ", np.sum(win_loss), np.shape(dur_win))
+    print(" ", n_sims_setting - n_wins, np.shape(dur_loss))
     print("max dur win vs loss:", np.max(dur_win), np.max(dur_loss))
-
-    # masked
-    dmw = np.ma.array(durations, mask=win_loss)
-    dml = np.ma.array(durations, mask=(1 - win_loss))
-
-    print(dmw)
-    dmw = np.broadcast_to(dmw, (np.max(durations), n_sims))
-    print(dmw)
+    print()
 
     # build up tensor by tiling
-
-    # t = np.ma.stack(
-    #     np.broadcast_to(),
-    #     np.broadcast_to()
-    # )
+    dw = np.multiply(durations, win_loss)
+    dl = np.multiply(durations, 1 - win_loss)
+    t = np.stack((
+        np.broadcast_to(dw, (np.max(durations), n_sims_setting)),
+        np.broadcast_to(dl, (np.max(durations), n_sims_setting))
+    ))
+    print("Shape of intermediate tensor for eventually")
+    print("doing histogram of duration stratified by win/loss:")
+    print(t.shape)
+    print("Expect (2, max dur, n sims)")
