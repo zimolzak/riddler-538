@@ -40,8 +40,8 @@ if __name__ == '__main__':
         score_4[sc] += 1
     print("Closed-form transition vector for init or 3 dups, 1 unique")
     print("(same as row 1 or 5 of Transition matrix):")
-    print(score_4, "/ 256 =")
-    cf = [x / 256 for x in score_4]  # fixme generalize. nfa ** ndi.
+    print(score_4, "/", nfa ** ndi, "=")
+    cf = [x / (nfa ** ndi) for x in score_4]
     print(cf)
     print()
 
