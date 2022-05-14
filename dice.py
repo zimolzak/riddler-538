@@ -109,7 +109,7 @@ if __name__ == '__main__':
     ndi = 4
     nfa = 4
 
-    n_sims_setting = 20000
+    n_sims_setting = 200000
     m, tr = simulate_many(n_sims_setting, num_dice=ndi, num_faces=nfa)
 
     win_loss = m[:, 0]
