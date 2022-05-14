@@ -67,8 +67,11 @@ def game_won(num_dice, num_faces):
         transitions[old_score, score] += 1
 
         if score == 4:  # win
+            transitions[3, 4] += 1
+            transitions[4, 4] += 1
             return True, n_rolls, history, transitions
         elif score == 0:  # loss
+            transitions[0, 0] += 1
             return False, n_rolls, history, transitions
         else:
             old_score = score
@@ -100,7 +103,7 @@ def simulate_many(n_sims, num_dice, num_faces):
 
 
 if __name__ == '__main__':
-    n_sims_setting = 200000
+    n_sims_setting = 20000
     m, tr = simulate_many(n_sims_setting, 4, 4)
 
     win_loss = m[:, 0]
@@ -132,12 +135,15 @@ if __name__ == '__main__':
     print(t.shape)
     print("Expect (2, max dur, n sims)")
 
-    tr_dense = tr[(1, 2, 5), :]
-    tr_rowsum = tr_dense.sum(axis=1).reshape((tr_dense.shape[0], 1))
-    tr_allsum = np.broadcast_to(tr_rowsum, tr_dense.shape)
-    tr_normalized = tr_dense / tr_allsum
+    # tr_dense = tr[(1, 2, 5), :]  # fixme adhoc selection of interesting rows
+    tr_rowsum = tr.sum(axis=1).reshape((tr.shape[0], 1))
+    tr_allsum = np.broadcast_to(tr_rowsum, tr.shape)
+    tr_normalized = tr / tr_allsum
     print()
     print("Transitions:")
-    print(tr_dense, "\n")
+    print(tr, "\n")
     print(tr_allsum, "\n")
     print(tr_normalized, "\n")
+
+"""Markov chain. tr_normalized is a right stochastic matrix. S is state space {0,1,2,3,4}
+with cardinality alpha = 5. Absorbing states are 0 and 4."""
