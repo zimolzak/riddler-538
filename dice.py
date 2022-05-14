@@ -1,6 +1,5 @@
 import numpy as np
-from itertools import product
-from sim_helpers import simulate_many, parse_dice, search_space
+from sim_helpers import simulate_many, search_space
 
 
 if __name__ == '__main__':
@@ -8,7 +7,7 @@ if __name__ == '__main__':
     # Global settings, might need in multiple places if generalize
     ndi = 4
     nfa = 4
-    n_sims_setting = 50000
+    n_sims_setting = 10000
 
     # Numeric
     m, tr = simulate_many(n_sims_setting, num_dice=ndi, num_faces=nfa, do_transitions=True)
@@ -29,6 +28,16 @@ if __name__ == '__main__':
     score_4, cf = search_space(ndi, nfa, ndi)
     print(score_4, "\n", cf)
     print()
+
+    # Will need to do these calcs for the following parts of transition matrix:
+    # NOT row 0 (absorbing); set it to [1 0 0 0 ...] --> ignore, doesn't go into Q.
+    # NOT row ndi-1 (never happens) or ndi (absorbing). Set them to [... 0 0 0 1] --> ignore ndi.
+    # Yes for rows 1 through ndi-2 (1 to 2 if tetrahedral)
+    # So: stack up 1 through ndi-1
+    # Cut out middle and that's Q.
+    # Cut out left and right and that's R.
+
+
 
     r = 2  # absorbing states, always 2. {0, 4} if 4 dice.
     t = ndi + 1 - r  # transient states. {1, 2, 3} if 4 dice
@@ -68,3 +77,11 @@ if __name__ == '__main__':
     print("FINAL ANSWER!")
     print(B[0, 1])
     print()
+
+    print("ndi, row num??, row val")
+    for i in range(5):
+        a, b = search_space(i, 4, 4)
+        print(i, 5-i)
+        print(a)
+        print(b)
+        print()

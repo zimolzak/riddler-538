@@ -87,6 +87,10 @@ def search_space(ndi, nfa, ndi_total):
     Equivalent to finding probability of (2 pair + 4 of kind), 3 of kind, pair, straight.
     """
     score_vec = np.zeros(ndi_total + 1)
+    if ndi_total - ndi == 1:
+        # Handle weird case that never happens. Pretend it's transient to state ndi_total.
+        score_vec[-1] = nfa ** ndi
+        return score_vec, score_vec / (nfa ** ndi)  # [... 0 0 0 0 1]
     for few_dice_tup in product(range(1, nfa + 1), repeat=ndi):
         n_arb = ndi_total - ndi
         arbitrary_dice = list(range(1, n_arb + 1))  # The ones in "unique" group. Numbers don't matter.
@@ -96,3 +100,13 @@ def search_space(ndi, nfa, ndi_total):
         sc = len(uniq)
         score_vec[sc] += 1
     return score_vec, score_vec / (nfa ** ndi)
+
+
+def ordinary_transition_matrix(ndi, nfa):
+    """Not square with rows 0 to ndi, but rows 1 to ndi-1."""
+    _, result = search_space(ndi, nfa, ndi)  # row 1 means roll ALL dice
+    for i in range(2, ndi):
+        dice_to_roll = None
+        _, row_i = search_space(i, nfa, ndi)
+        result = np.vstack((result, row_i))
+    return result
