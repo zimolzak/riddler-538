@@ -65,7 +65,6 @@ def game_won(num_dice, num_faces):
         score = len(u)
         history.append([u, d])
         transitions[old_score, score] += 1
-        # print("os ns ", old_score, score, len(d))  # fixme
 
         if score == 4:  # win
             return True, n_rolls, history, transitions
@@ -101,7 +100,7 @@ def simulate_many(n_sims, num_dice, num_faces):
 
 
 if __name__ == '__main__':
-    n_sims_setting = 20000
+    n_sims_setting = 200000
     m, tr = simulate_many(n_sims_setting, 4, 4)
 
     win_loss = m[:, 0]
@@ -133,6 +132,12 @@ if __name__ == '__main__':
     print(t.shape)
     print("Expect (2, max dur, n sims)")
 
+    tr_dense = tr[(1, 2, 5), :]
+    tr_rowsum = tr_dense.sum(axis=1).reshape((tr_dense.shape[0], 1))
+    tr_allsum = np.broadcast_to(tr_rowsum, tr_dense.shape)
+    tr_normalized = tr_dense / tr_allsum
     print()
     print("Transitions:")
-    print(tr)
+    print(tr_dense, "\n")
+    print(tr_allsum, "\n")
+    print(tr_normalized, "\n")
