@@ -17,6 +17,8 @@ if __name__ == '__main__':
         tr = None
 
     # Markov
+    r = 2  # absorbing states, always 2. {0, 4} if 4 dice.
+    t = ndi + 1 - r  # transient states. {1, 2, 3} if 4 dice
     Q, R = qr(ndi, nfa)
     N = np.linalg.inv(np.identity(t) - Q)
     B = np.matmul(N, R)
