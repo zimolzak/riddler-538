@@ -91,7 +91,7 @@ def search_space(ndi, nfa, ndi_total):
         # Handle weird case that never happens. Pretend it's transient to state ndi_total.
         score_vec[-1] = nfa ** ndi
         return score_vec, score_vec / (nfa ** ndi)  # [... 0 0 0 0 1]
-    for few_dice_tup in product(range(1, nfa + 1), repeat=ndi):
+    for few_dice_tup in tqdm(list(product(range(1, nfa + 1), repeat=ndi))):
         n_arb = ndi_total - ndi
         arbitrary_dice = list(range(1, n_arb + 1))  # The ones in "unique" group. Numbers don't matter.
         all_dice = list(few_dice_tup) + arbitrary_dice
@@ -107,9 +107,6 @@ def ordinary_transition_matrix(ndi, nfa):
     _, result = search_space(ndi, nfa, ndi)  # row 1 means roll ALL dice. Should be equiv to roll all-1.
     # But must only do one. 10 8 7 6 5 4 3 2 1. Note the skip. NOT 10 9 8 7 6 ....
     for i in range(ndi - 2, 0, -1):
-        if i == 1:
-            row_i = np.zeros(result.shape[1])
-        else:
-            _, row_i = search_space(i, nfa, ndi)
+        _, row_i = search_space(i, nfa, ndi)
         result = np.vstack((result, row_i))
     return result
