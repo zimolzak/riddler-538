@@ -80,6 +80,9 @@ def simulate_many(n_sims, num_dice, num_faces, do_transitions=False):
     return games_matrix, transitions
 
 
+# Markov below this line. ########
+
+
 def search_space(ndi, nfa, ndi_total):
     """Search in space of all possible 4-dice rolls.
     (But not necessarily 4)
@@ -113,6 +116,13 @@ def ordinary_transition_matrix(ndi, nfa):
 
 
 def qr(ndi, nfa):
+    # Do calculations for the following parts of transition matrix:
+    # NOT row 0 (absorbing); set it to [1 0 0 0 ...] --> ignore, doesn't go into Q.
+    # NOT row ndi-1 (never happens) or ndi (absorbing). Set them to [... 0 0 0 1] --> ignore ndi.
+    # Yes for rows 1 through ndi-2 (1 to 2 if tetrahedral)
+    # So: stack up 1 through ndi-1
+    # Cut out middle and that's Q.
+    # Cut out left and right and that's R.
     m = ordinary_transition_matrix(ndi, nfa)
     nrow, ncol = m.shape
     c1 = m[:, 0].reshape((nrow, 1))
