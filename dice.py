@@ -77,11 +77,3 @@ if __name__ == '__main__':
     print("FINAL ANSWER!")
     print(B[0, 1])
     print()
-
-    print("ndi, row num??, row val")
-    for i in range(5):
-        a, b = search_space(i, 4, 4)
-        print(i, 5-i)
-        print(a)
-        print(b)
-        print()
