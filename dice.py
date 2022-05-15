@@ -5,7 +5,7 @@ if __name__ == '__main__':
     # Global settings
     ndi = 4
     nfa = 4
-    n_sims_setting = 20000
+    n_sims_setting = 100000
     monte = True
 
     if monte:

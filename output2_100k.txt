@@ -1,0 +1,26 @@
+4 dice, 4 faces per die.
+
+Transition matrix from simulation:
+[1. 0. 0. 0. 0.]
+[0.15638188 0.1878939  0.56260325 0.         0.09312097]
+[0.12427867 0.12577846 0.62505349 0.         0.12488939]
+[0. 0. 0. 0. 1.]
+[0. 0. 0. 0. 1.]
+
+Q = transient to transient =
+ [[0.1875 0.5625 0.    ]
+ [0.125  0.625  0.    ]
+ [0.     0.     0.    ]] 
+
+R = transient to absorbing =
+ [[0.15625 0.09375]
+ [0.125   0.125  ]
+ [0.      1.     ]] 
+
+B = N * R =
+ [[0.55       0.45      ]
+ [0.51666667 0.48333333]
+ [0.         1.        ]] 
+
+0.44999 Monte carlo estimate of win probability
+0.45000000000000007 FINAL ANSWER win probability!
