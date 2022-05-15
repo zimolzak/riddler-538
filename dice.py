@@ -1,5 +1,5 @@
 import numpy as np
-from sim_helpers import simulate_many, search_space
+from sim_helpers import simulate_many, search_space, qr
 
 
 if __name__ == '__main__':
@@ -77,3 +77,10 @@ if __name__ == '__main__':
     print("FINAL ANSWER!")
     print(B[0, 1])
     print()
+
+    qa, ra = qr(4, 4)
+    print(qa)
+    print(Q)
+    print(ra)
+    print(R)
+

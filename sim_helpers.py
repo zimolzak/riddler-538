@@ -110,3 +110,13 @@ def ordinary_transition_matrix(ndi, nfa):
         _, row_i = search_space(i, nfa, ndi)
         result = np.vstack((result, row_i))
     return result
+
+
+def qr(ndi, nfa):
+    m = ordinary_transition_matrix(ndi, nfa)
+    nrow, ncol = m.shape
+    c1 = m[:, 0].reshape((nrow, 1))
+    cn = m[:, -1].reshape((nrow, 1))
+    R = np.hstack((c1, cn))
+    Q = m[:, 1:(ncol - 1)]
+    return Q, R
